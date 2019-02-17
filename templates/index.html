@@ -7,38 +7,64 @@
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="apple-touch-icon" href="apple-touch-icon.png">
-
+       
         <link rel="stylesheet" href="{{ url_for('static', filename = 'css/bootstrap.min.css') }}">
-        <style>
-        body {
+            <style>
+                 body {
                         padding-top: 50px;
                         padding-bottom: 20px;
                         }
-                                                                                                                              </style>
-                                                                                                                           <link rel="stylesheet" href="{{ url_for('static', filename = 'css/bootstrap-theme.min.css') }}">
-                                                                                                                           <link rel="stylesheet" href="{{ url_for('static', filename = 'css/main.css') }}">
-                                                                                                                           <script src="{{ url_for('static', filename = 'js/vendor/modernizr-2.8.3-respond-1.4.2.min.js') }}"></script>     </head>
+            </style>
+        <link rel="stylesheet" href="{{ url_for('static', filename = 'css/bootstrap-theme.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename = 'css/main.css') }}">
+        <script src="{{ url_for('static', filename = 'js/vendor/modernizr-2.8.3-respond-1.4.2.min.js') }}"></script>    
+     
+</head>
+
+<style>
+table {
+    border-collapse: collapse;
+    width: 80%;
+}
+
+th, td {
+    text-align: center;
+    padding: 8px;
+    width: 600;
+}
+
+tr:nth-child(even){
+    background-color: #f2f2f2
+    
+}
+th {
+    background-color: #c5ccd8;
+    color: white;
+    width: 200;
+}
+</style>
 
 <div class = "jumbotron">
     <div class = "container" >
         <h1> Dee-NS Server</h1>
         <h2> Stats </h2>
-            <body>This shows the statistics of the DNS server. </body>
+            <body>This shows the status and data for the DNS server. </body>
+       
 
     </div>
 </div>
 
-<div class = "container"; style = "padding-top:20px"; style = "padding-bottom:20px">
+<div class = "container"; style = "padding-top:20px"; style = "padding-bottom:20px" >
     <div class = "row">
         <div class = "col-md-4">
         <h2> Blacklist </h2>
         <body>These are the blacklisted websites: </body>
 
         <table style = "margin-left:40px" > 
-            <tr><th style = "padding-top:20px"; style = "margin-left:20px" > Websites </th></tr> <!-- add form at bottom. Indent the data -->
+            <tr><th style = "padding-top:20px"; style = "margin-left:20px" > Websites </th> <th></th> </tr> <!-- add form at bottom. Indent the data -->
             {% for i in blacklist %}
             <tr> <td style = "padding-top:20px"; style = "margin-left:20px" >{{ i }}</td>
-                <td class = "btn btn-default"; style = "margin-left: 20px"> <a href = " {{ url_for('remove_blacklist', URL = i) }} "> Delete Website </a>               
+                <td class = "btn btn-default"; style = "margin-left: 20px"> <a href = " {{ url_for('remove_blacklist', URL = i) }} "> Unblock Domain </a>               
                 </td>
             </tr>
            {% endfor %}    
@@ -46,8 +72,9 @@
        
         <div style = "padding-top:30px">
             <form action = "/add-blacklist" method = "post">
+                <label for = "URL"> Domain </label>
                 <input type = "text" name = "URL">
-                <input type = "submit" value = "Add">
+                <input type = "submit" value = "Blacklist">
             </form>
         </div>
     </div>
@@ -57,12 +84,12 @@
 <hr>
 
 
-<div class = "container"; style = "padding-top: 20px"; style = "padding-bottom: 20px">
-    <div class = "row">
+<div class = "container"; style = "padding-top: 20px"; style = "padding-bottom: 20px"; text-align = "center" >
+    <div class = "row"; style = "padding-top: 20px">
     <h2> Devices </h2>
     <body>
         {% for i in dev.keys() %}
-          <table style = "margin-left:40px" >
+          <table style="margin-left: 40px", style = "padding-top: 20px"> 
           <tr>
             <th> {{ dev[i][0] }} - {{ dev[i][1] }}</th>
             <th> Status </th>
@@ -89,15 +116,27 @@
             {% endfor %}
          </table>
         {% endfor %}
+        <div style = "padding-top:30px">
+        <h5>New Whitelist Entry: </h5>
+        <form action = "add-white" method = "post">
+            <label for = "name"> Name </label>
+            <input type = "text" name = "Name">
+            <label for = "IP"> IP </label>
+            <input type = "text" name = "IP">
+            <label for = "Domain"> Domain </label>
+            <input type = "text" name = "Domain">
+            <input type = "submit" value = "Add">
+        </form>
+        </div>
     </div>
 </div>
 
 <script>
     function whitechecked(box) {
-        window.location.href = "/white_checked?id=" + encodeURIComponent(box.id) + "&checked=" + encodeURIComponent(box.checked);
+        window.location.href = "/white-checked?id=" + encodeURIComponent(box.id) + "&checked=" + encodeURIComponent(box.checked);
     }
 </script>
 
 <hr>
-<footer> Company 2019</footer>
+<footer> © Copyright Maxim, Samuel, Ryan, and Dee</footer>
 </html>

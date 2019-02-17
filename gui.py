@@ -16,6 +16,17 @@ db_conn = None
 global db
 db = None
 
+def RepresentsInt(s):
+    try: 
+        int(s)
+        return True
+    except ValueError:
+        return False
+
+def ip_to_str(ip):
+    if not RepresentsInt(ip):
+        return ip
+    return '.'.join([str(ip >> (i << 3) & 0xFF) for i in range(4)[::-1]])
 
 @app.route('/')
 def main():
@@ -44,7 +55,7 @@ def main():
         db.execute("SELECT Domain FROM Queuries WHERE Client = ? AND Fullfilled = 0", (dev[2],))
         blckd_reqs = set([i[0] for i in db.fetchall()])
 
-        dev_lists[dev[0]] = (dev[1], dev[2], whites | full_reqs | blckd_reqs,  whites, full_reqs, blckd_reqs, dev[0])
+        dev_lists[dev[0]] = (dev[1], ip_to_str(dev[2]), whites | full_reqs | blckd_reqs,  whites, full_reqs, blckd_reqs, dev[0])
 
     return render_template("index.html", blacklist=bl_result, dev = dev_lists)
 
@@ -60,13 +71,36 @@ def remove_blacklist():
         db.execute("DELETE FROM \"config.Blacklist\" WHERE DomainName = ?", (request.args.get("URL"),))
     return redirect("/")
 
-@app.route("/white_checked")
+@app.route("/white-checked")
 def white_checked():
     if request.args.get("id") is not None and request.args.get("checked") is not None:
         if request.args.get("checked") == "true":
             db.execute("INSERT OR IGNORE INTO \"config.Whitelist\" (DomainName, Device) VALUES (?, ?)", (request.args.get('id').split(' ')[1], request.args.get('id').split(" ")[0]))
         else:
             db.execute("DELETE FROM \"config.Whitelist\" WHERE DomainName = ? and Device = ?", (request.args.get('id').split(' ')[1], request.args.get('id').split(" ")[0]))
+    return redirect("/")
+
+@app.route("/add-white", methods=['POST'])
+def add_white():
+    if 'IP' in request.form:
+        db.execute("SELECT DeviceID FROM \"config.Devices\" WHERE IPAddress = ?", (request.form['IP'],))
+        dev_id = db.fetchone()
+        if dev_id is None:
+            db.execute("INSERT INTO \"config.Devices\" (IPAddress, FriendlyName) VALUES (?, ?)", (request.form['IP'], request.form['Name']))
+            db.execute("SELECT DeviceID FROM \"config.Devices\" WHERE IPAddress = ?", (request.form['IP'],))
+            dev_id = db.fetchone()
+        
+        db.execute("INSERT INTO \"config.Whitelist\" (DomainName, Device) VALUES (?, ?)", (request.form['Domain'], dev_id[0]))
+
+    return redirect("/")
+
+@app.route("/update-dev-name")
+def update_dev_name():
+    if requests.args.get("id"):
+        db.execute("UPDATE \"config.Devices\" SET FriendlyName = ? WHERE DeviceID = ?", (requests.args.get('name'), requests.args.get("id")))
+    elif requests.args.get("ip"):
+        db.execute("UPDATE \"config.Devices\" SET FriendlyName = ? WHERE IPAddress = ?", (requests.args.get('name'), requests.args.get("ip")))
+
     return redirect("/")
 
 @app.route('/static/js/<path:path>')

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <title> style.css </title>
@@ -7,6 +8,13 @@
 <style>
 body,h1 {font-family: "Raleway", sans-serif}
 body,h1 {height: 100%}
+.bgimg {
+    background-image:url(https://images.pexels.com/photos/1308624/pexels-photo-1308624.jpeg?cs=srgb&dl=4k-wallpaper-architecture-background-1308624.jpg&fm=jpg)
+    min-height: 100%;
+    background-position:center;
+    background size :cover;
+    }
+
 table {
     border-collapse: collapse;
 }
