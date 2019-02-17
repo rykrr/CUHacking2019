@@ -25,10 +25,10 @@ dns_packet *dns_server_recv(int sock, struct sockaddr_in *sender, socklen_t *sen
     if(!sock)
         return;
     
-    sender_size = sizeof(sender);
+    *sender_size = sizeof(sender);
     
     char buf[513];
-    ssize_t read = recvfrom(sock, buf, 512, 0, (struct sockaddr*) &sender, &sender_size);
+    ssize_t read = recvfrom(sock, buf, 512, 0, (struct sockaddr*) sender, sender_size);
     perror(strerror(errno));
     
     if(read < 0)

@@ -118,6 +118,7 @@ uint16_t packet_len(dns_packet *packet) {
 uint8_t *packet_to_bytes(dns_packet *packet, uint16_t *length) {
     uint16_t _packet_len = packet_len(packet);
     if(length) *length = _packet_len;
+    printf("Expected Length: %d\n", _packet_len);
     
     uint8_t *bytes = (uint8_t*) malloc(sizeof(uint8_t) * _packet_len);
     *(uint16_t*)(bytes + 0)  = htons(packet->header.id);
@@ -162,6 +163,7 @@ uint8_t *packet_to_bytes(dns_packet *packet, uint16_t *length) {
             *(bytes + len++) = packet->answers[i].rdata[j];
     }
     
+    printf("Actual Length: %d\n", len);
     return bytes;
 }
 
@@ -227,6 +229,7 @@ dns_packet *bytes_to_packet(uint8_t *bytes) {
             case 1:
                 packet->answers[i].rdata  = malloc(sizeof(uint32_t));
                 *((uint32_t*) packet->answers[i].rdata) = ntohl(*(uint32_t*)(bytes + len));
+                len += packet->answers[i].rdata;
                 break;
                 
             default:

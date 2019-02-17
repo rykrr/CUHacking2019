@@ -43,7 +43,7 @@ int main() {
         */
         
         uint32_t address = dns_lookup(cache, domain);
-        //dns_persist(db, sender_addr, domain, !!address);
+        dns_persist(db, sender_addr, domain, !!address);
         
         printf("Address %08X\n", address);
         
@@ -51,6 +51,12 @@ int main() {
         
         free_dns_packet(packet);
         packet = new_dns_packet(header);
+        
+        uint8_t *xbytes = to_dns_name(domain);
+        
+        for(uint8_t *ptr = xbytes; *ptr; ptr++)
+            printf("%02X ", *ptr);
+        puts("");
         
         packet->questions->qname  = to_dns_name(domain);
         packet->questions->qtype  = 1;
