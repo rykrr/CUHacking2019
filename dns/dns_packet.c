@@ -193,17 +193,45 @@ dns_packet *bytes_to_packet(uint8_t *bytes) {
     }
     
     for(uint16_t i = 0; i < packet->header.ancount; i++) {
-        uint16_t name_len = strlen(bytes+len)+1;
+        uint16_t name_len = 0;
+        if(!(*(bytes+len) & 0xC0))
+            name_len = strlen(bytes+len)+1;
+        
         packet->answers[i].name = malloc(sizeof(uint8_t) * name_len);
         
-        for(uint8_t *ptr = packet->answers[i].name; *ptr; ptr++)
-            *ptr = *(bytes+len++);
+        if(name_len)
+            for(uint8_t *ptr = packet->answers[i].name; *ptr; ptr++)
+                *ptr = *(bytes+len++);
+        else
+            len += 2;
+        
+        printf("Name: %s\n", packet->answers[i].name);
         
         packet->answers[i].type = ntohs(*(uint16_t*)(bytes + len));
         len += 2;
+        printf("Type: %d\n", packet->answers[i].type);
         
         packet->answers[i].class = ntohs(*(uint16_t*)(bytes + len));
         len += 2;
+        printf("Class: %d\n", packet->answers[i].class);
+        
+        packet->answers[i].ttl = ntohl(*(uint32_t*)(bytes + len));
+        len += 4;
+        printf("TTL: %d\n", packet->answers[i].ttl);
+        
+        packet->answers[i].rdlength = ntohs(*(uint16_t*)(bytes + len));
+        len += 2;
+        
+        switch(packet->answers[i].type) {
+            case 1:
+                packet->answers[i].rdata  = malloc(sizeof(uint32_t));
+                *((uint32_t*) packet->answers[i].rdata) = ntohl(*(uint32_t*)(bytes + len));
+                break;
+                
+            default:
+                packet->answers[i].rdata = NULL;
+                break;
+        }
     }
     
     return packet;

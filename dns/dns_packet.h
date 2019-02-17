@@ -1,3 +1,4 @@
+#pragma once
 #include <arpa/inet.h>
 #include <stdlib.h>
 #include <stdint.h>

@@ -10,7 +10,4 @@
 
 #include "dns_packet.h"
 
-int         dns_server_init(uint16_t);
-
-dns_packet *dns_server_recv(int, struct sockaddr_in*, socklen_t*);
-void        dns_server_send(int, dns_packet*, struct sockaddr_in*, socklen_t*);
+uint32_t dns_forward_lookup(uint32_t, const char*);
