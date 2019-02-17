@@ -3,6 +3,7 @@
 #include <sqlite3.h>
 #include <string.h>
 #include "dns_packet.h"
+#include "dns_client.h"
 
 int      dns_check(sqlite3*, uint32_t, const char*);
 uint32_t dns_lookup(sqlite3*, const char*);

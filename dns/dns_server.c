@@ -21,7 +21,7 @@ int dns_server_init(uint16_t port) {
 }
 
 
-dns_packet *dns_recv(int sock, struct sockaddr_in *sender, socklen_t *sender_size) {
+dns_packet *dns_server_recv(int sock, struct sockaddr_in *sender, socklen_t *sender_size) {
     if(!sock)
         return;
     
@@ -29,6 +29,7 @@ dns_packet *dns_recv(int sock, struct sockaddr_in *sender, socklen_t *sender_siz
     
     char buf[513];
     ssize_t read = recvfrom(sock, buf, 512, 0, (struct sockaddr*) &sender, &sender_size);
+    perror(strerror(errno));
     
     if(read < 0)
         return NULL;
@@ -39,11 +40,12 @@ dns_packet *dns_recv(int sock, struct sockaddr_in *sender, socklen_t *sender_siz
 }
 
 
-void dns_send(int sock, dns_packet *packet, struct sockaddr_in *sender, socklen_t sender_size) {
+void dns_server_send(int sock, dns_packet *packet, struct sockaddr_in *sender, socklen_t sender_size) {
     uint16_t length = 0;
     uint8_t *bytes  = packet_to_bytes(packet, &length);
     
     sendto(sock, bytes, length, 0, (struct sockaddr*) sender, sender_size);
+    perror(strerror(errno));
     
     free_dns_packet(packet);
     free(bytes);

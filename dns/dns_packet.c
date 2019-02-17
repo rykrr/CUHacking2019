@@ -97,6 +97,7 @@ uint8_t *to_dns_name(const char *name) {
         }
     }
     
+    bytes[length] = 0;
     return bytes;
 }
 

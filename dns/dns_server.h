@@ -13,4 +13,4 @@
 int         dns_server_init(uint16_t);
 
 dns_packet *dns_server_recv(int, struct sockaddr_in*, socklen_t*);
-void        dns_server_send(int, dns_packet*, struct sockaddr_in*, socklen_t*);
+void        dns_server_send(int, dns_packet*, struct sockaddr_in*, socklen_t);
