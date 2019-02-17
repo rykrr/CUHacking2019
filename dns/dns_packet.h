@@ -26,7 +26,7 @@ typedef struct {
     uint8_t *name;
     uint16_t type;
     uint16_t class;
-    uint16_t ttl;
+    uint32_t ttl;
     uint16_t rdlength;
     uint8_t *rdata;
 } dns_answer;

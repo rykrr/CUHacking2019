@@ -59,7 +59,7 @@ void dns_set_answer_address(dns_answer *answer, uint32_t address) {
     answer->rdlength = 4;
     
     answer->rdata  = (uint8_t*) malloc(sizeof(uint32_t));
-    *answer->rdata = address;
+    *(uint32_t*) answer->rdata = htonl(address);
 }
 
 
@@ -108,7 +108,7 @@ uint16_t packet_len(dns_packet *packet) {
         length += strlen(packet->questions[i].qname) + 5;
     
     for(uint16_t i = 0; i < packet->header.ancount; i++)
-        length += strlen(packet->answers[i].name) + 9 + packet->answers[i].rdlength;
+        length += strlen(packet->answers[i].name) + 11 + packet->answers[i].rdlength;
     
     return length;
 }
@@ -119,44 +119,46 @@ uint8_t *packet_to_bytes(dns_packet *packet, uint16_t *length) {
     if(length) *length = _packet_len;
     
     uint8_t *bytes = (uint8_t*) malloc(sizeof(uint8_t) * _packet_len);
-    *((uint16_t*) bytes + 0) = htons(packet->header.id);
-    *((uint16_t*) bytes + 1) = htons(packet->header.code);
-    *((uint16_t*) bytes + 2) = htons(packet->header.qdcount);
-    *((uint16_t*) bytes + 3) = htons(packet->header.ancount);
-    *((uint16_t*) bytes + 4) = htons(packet->header.nscount);
-    *((uint16_t*) bytes + 5) = htons(packet->header.arcount);
+    *(uint16_t*)(bytes + 0)  = htons(packet->header.id);
+    *(uint16_t*)(bytes + 2)  = htons(packet->header.code);
+    *(uint16_t*)(bytes + 4)  = htons(packet->header.qdcount);
+    *(uint16_t*)(bytes + 6)  = htons(packet->header.ancount);
+    *(uint16_t*)(bytes + 8)  = htons(packet->header.nscount);
+    *(uint16_t*)(bytes + 10) = htons(packet->header.arcount);
     
     uint16_t len = 12;
     
     for(uint16_t i = 0; i < packet->header.qdcount; i++) {
-        for(uint8_t *ptr = packet->questions[i].qname; *ptr; ptr++)
-            *(bytes + len++) = *ptr;
+        int name_len = strlen(packet->questions[i].qname) + 1;
+        for(int j = 0; j < name_len; j++)
+            *(bytes + len++) = packet->questions[i].qname[j];
         
-        *(bytes + len) = htons(packet->questions[i].qtype);
+        *(uint16_t*)(bytes + len) = htons(packet->questions[i].qtype);
         len += 2;
         
-        *(bytes + len) = htons(packet->questions[i].qclass);
+        *(uint16_t*)(bytes + len) = htons(packet->questions[i].qclass);
         len += 2;
     }
     
     for(uint16_t i = 0; i < packet->header.ancount; i++) {
-        for(uint8_t *ptr = packet->answers[i].name; *ptr; ptr++)
-            *(bytes + len++) = *ptr;
+        int name_len = strlen(packet->answers[i].name) + 1;
+        for(int j = 0; j < name_len; j++)
+            *(bytes + len++) = packet->answers[i].name[j];
         
-        *(bytes + len) = htons(packet->answers[i].type);
+        *(uint16_t*)(bytes + len) = htons(packet->answers[i].type);
         len += 2;
         
-        *(bytes + len) = htons(packet->answers[i].class);
+        *(uint16_t*)(bytes + len) = htons(packet->answers[i].class);
         len += 2;
         
-        *(bytes + len) = htons(packet->answers[i].ttl);
+        *(uint32_t*)(bytes + len) = htonl(packet->answers[i].ttl);
+        len += 4;
+        
+        *(uint16_t*)(bytes + len) = htons(packet->answers[i].rdlength);
         len += 2;
         
-        *(bytes + len) = htons(packet->answers[i].rdlength);
-        len += 2;
-        
-        for(uint8_t *ptr = packet->answers[i].rdata; *ptr; ptr++)
-            *(bytes + len++) = *ptr;
+        for(int j = 0; j < packet->answers[i].rdlength; j++)
+            *(bytes + len++) = packet->answers[i].rdata[j];
     }
     
     return bytes;
