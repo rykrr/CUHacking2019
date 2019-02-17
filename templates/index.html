@@ -1,0 +1,103 @@
+<html>
+
+<head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+        <link rel="stylesheet" href="{{ url_for('static', filename = 'css/bootstrap.min.css') }}">
+        <style>
+        body {
+                        padding-top: 50px;
+                        padding-bottom: 20px;
+                        }
+                                                                                                                              </style>
+                                                                                                                           <link rel="stylesheet" href="{{ url_for('static', filename = 'css/bootstrap-theme.min.css') }}">
+                                                                                                                           <link rel="stylesheet" href="{{ url_for('static', filename = 'css/main.css') }}">
+                                                                                                                           <script src="{{ url_for('static', filename = 'js/vendor/modernizr-2.8.3-respond-1.4.2.min.js') }}"></script>     </head>
+
+<div class = "jumbotron">
+    <div class = "container" >
+        <h1> Dee-NS Server</h1>
+        <h2> Stats </h2>
+            <body>This shows the statistics of the DNS server. </body>
+
+    </div>
+</div>
+
+<div class = "container"; style = "padding-top:20px"; style = "padding-bottom:20px">
+    <div class = "row">
+        <div class = "col-md-4">
+        <h2> Blacklist </h2>
+        <body>These are the blacklisted websites: </body>
+
+        <table style = "margin-left:40px" > 
+            <tr><th style = "padding-top:20px"; style = "margin-left:20px" > Websites </th></tr> <!-- add form at bottom. Indent the data -->
+            {% for i in blacklist %}
+            <tr> <td style = "padding-top:20px"; style = "margin-left:20px" >{{ i }}</td>
+                <td class = "btn btn-default"; style = "margin-left: 20px"> <a href = " {{ url_for('remove_blacklist', URL = i) }} "> Delete Website </a>               
+                </td>
+            </tr>
+           {% endfor %}    
+        </table>
+       
+        <div style = "padding-top:30px">
+            <form action = "/add-blacklist" method = "post">
+                <input type = "text" name = "URL">
+                <input type = "submit" value = "Add">
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<hr>
+
+
+<div class = "container"; style = "padding-top: 20px"; style = "padding-bottom: 20px">
+    <div class = "row">
+    <h2> Devices </h2>
+    <body>
+        {% for i in dev.keys() %}
+          <table style = "margin-left:40px" >
+          <tr>
+            <th> {{ dev[i][0] }} - {{ dev[i][1] }}</th>
+            <th> Status </th>
+            <th> Whitelist </th>
+          </tr>
+            {% for j in dev[i][2] %} 
+            
+            <tr>
+                <td> {{ j }}  </td>
+                <td>
+                {% if j in dev[i][3] %}
+                    Whitelisted
+                {% elif j in dev[i][5] %}
+                    Attempted Connection
+                {% elif J in dev[i][4] %}
+                    Previously Connected
+                {% endif %}
+                </td>
+                <td>
+                    <input type="checkbox"; {% if j in dev[i][3]%} checked {% endif %}; id="{{ dev[i][6] }} {{ j }}"; onchange="whitechecked(this)"/>
+                </td>
+            </tr>
+            
+            {% endfor %}
+         </table>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    function whitechecked(box) {
+        window.location.href = "/white_checked?id=" + encodeURIComponent(box.id) + "&checked=" + encodeURIComponent(box.checked);
+    }
+</script>
+
+<hr>
+<footer> Company 2019</footer>
+</html>
